@@ -76,7 +76,7 @@ def get_system_info():
     # Network details
     net_io = psutil.net_io_counters()
     info['Total Bytes Sent'] = net_io.bytes_sent
-    info['Total Bytes Received'] = net_io.bytes_rec
+    info['Total Bytes Received'] = net_io.bytes_recv
 
     # Time
     info['Time'] = datetime.datetime.now().time().strftime('%H:%M:%S')
