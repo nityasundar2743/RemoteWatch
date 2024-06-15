@@ -43,6 +43,8 @@ def get_system_info():
     partitions = psutil.disk_partitions()
     for partition in partitions:
         usage = psutil.disk_usage(partition.mountpoint)
+        if(usage.total/(1024*1024*1024)<1):
+            continue
         info[f'Disk Total Space ({partition.device})'] = round(usage.total/(1024*1024*1024), 2)
         info[f'Disk Used Space ({partition.device})'] = round(usage.used/(1024*1024*1024), 2)
         info[f'Disk Free Space ({partition.device})'] = round(usage.free/(1024*1024*1024), 2) 
