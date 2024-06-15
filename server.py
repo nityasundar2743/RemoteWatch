@@ -19,7 +19,7 @@ def update_data():
     collection = db[COLLECTION_NAME]
         
     # Clear the collection (optional, if you want to overwrite existing data)
-    collection.delete_many({})
+    collection.delete_many({"Name" : systemInfo.getname()})
         
     # Get system information
     data_to_insert = systemInfo.get_system_info()

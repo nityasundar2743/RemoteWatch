@@ -4,6 +4,9 @@ import psutil
 import socket
 import cpuinfo
 
+def getname():
+    return platform.node()
+
 def get_system_info():
     info = {}
 
