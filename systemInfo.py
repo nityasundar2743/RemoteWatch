@@ -1,32 +1,8 @@
-from collections import defaultdict
 import datetime
 import platform
 import psutil
 import socket
 import cpuinfo
-
-def get_disk_info():
-    # Get all disk partitions
-    partitions = psutil.disk_partitions()
-    
-    # Create a dictionary to store aggregated disk usage info for each device
-    disk_info = defaultdict(lambda: {'total': 0, 'used': 0, 'free': 0, 'percent': 0, 'partitions': 0})
-    
-    for partition in partitions:
-        usage = psutil.disk_usage(partition.mountpoint)
-        device = partition.device
-        
-        # Aggregate the data for each device
-        disk_info[device]['total'] += usage.total
-        disk_info[device]['used'] += usage.used
-        disk_info[device]['free'] += usage.free
-        disk_info[device]['partitions'] += 1
-    
-    # Calculate the usage percent for each device
-    for device, info in disk_info.items():
-        info['percent'] = round((info['used'] / info['total']) * 100, 2)
-    
-    return disk_info
 
 def get_system_info():
     info = {}
@@ -63,15 +39,14 @@ def get_system_info():
     info['Used Memory'] = round(svmem.used/(1024*1024*1024),2)
     info['Memory Usage'] = svmem.percent
 
-    # Get aggregated disk info
-    disk_info = get_disk_info()
-
-    # Format the disk info into the info dictionary
-    for device, data in disk_info.items():
-        info[f'Disk Total Space ({device})'] = round(data['total'] / (1024 * 1024 * 1024), 2)
-        info[f'Disk Used Space ({device})'] = round(data['used'] / (1024 * 1024 * 1024), 2)
-        info[f'Disk Free Space ({device})'] = round(data['free'] / (1024 * 1024 * 1024), 2)
-        info[f'Disk Usage ({device})'] = data['percent']
+    # Disk information
+    partitions = psutil.disk_partitions()
+    for partition in partitions:
+        usage = psutil.disk_usage(partition.mountpoint)
+        info[f'Disk Total Space ({partition.device})'] = round(usage.total/(1024*1024*1024), 2)
+        info[f'Disk Used Space ({partition.device})'] = round(usage.used/(1024*1024*1024), 2)
+        info[f'Disk Free Space ({partition.device})'] = round(usage.free/(1024*1024*1024), 2) 
+        info[f'Disk Usage ({partition.device})'] = usage.percent
 
     # Network details
     net_io = psutil.net_io_counters()
