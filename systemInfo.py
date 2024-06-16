@@ -31,8 +31,8 @@ def get_system_info():
     # CPU information
     info['Physical cores'] = psutil.cpu_count(logical=False)
     info['Logical cores'] = psutil.cpu_count(logical=True)
-    info['Max Frequency'] = psutil.cpu_freq().max/1000
-    info['Current Frequency'] = psutil.cpu_freq().current/1000
+    info['Max Frequency'] = round(psutil.cpu_freq().max/1000 , 3)
+    info['Current Frequency'] = round(psutil.cpu_freq().current/1000 , 3)
     info['CPU Usage'] = psutil.cpu_percent(interval=1)
 
     # Memory information
