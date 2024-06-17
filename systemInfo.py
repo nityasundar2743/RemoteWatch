@@ -50,14 +50,14 @@ def get_system_info():
     avg_cpu_frequency = sum(cpu_frequency) / len(cpu_frequency)
 
     info['Current Frequency'] = round(avg_cpu_frequency, 3)
-    info['CPU Usage'] = avg_cpu_usage
+    info['CPU Usage'] = round(avg_cpu_usage, 3)
 
     # Memory information
     svmem = psutil.virtual_memory()
     info['Total Memory'] = round(svmem.total / (1024 * 1024 * 1024), 2)
     info['Available Memory'] = round(svmem.available / (1024 * 1024 * 1024), 2)
     info['Used Memory'] = round(svmem.used / (1024 * 1024 * 1024), 2)
-    info['Memory Usage'] = avg_memory_usage
+    info['Memory Usage'] = round(avg_memory_usage, 3)
 
     # Disk information
     partitions = psutil.disk_partitions()

@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import systemInfo
-import time
+import platform
 
 # MongoDB connection details
 MONGO_URI = 'mongodb+srv://nitya:1234@remotewatch.e6zcabc.mongodb.net/?retryWrites=true&w=majority&appName=RemoteWatch'
@@ -18,11 +18,11 @@ def update_data():
     db = client[DATABASE_NAME]
     collection = db[COLLECTION_NAME]
         
-    # Clear the collection (optional, if you want to overwrite existing data)
-    collection.delete_many({"Name" : systemInfo.getname()})
-        
     # Get system information
     data_to_insert = systemInfo.get_system_info()
+
+    # Clear the collection (optional, if you want to overwrite existing data)
+    collection.delete_many({"Name" : platform.node()})
         
     # Insert the data into the collection
     collection.insert_many(data_to_insert)
