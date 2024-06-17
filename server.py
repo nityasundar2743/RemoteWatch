@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import systemInfo
-import platform
+import datetime
 
 # MongoDB connection details
 MONGO_URI = 'mongodb+srv://nitya:1234@remotewatch.e6zcabc.mongodb.net/?retryWrites=true&w=majority&appName=RemoteWatch'
@@ -23,13 +23,13 @@ def update_data():
 
     # Update the data in the collection without deleting it
     for data in data_to_insert:
-        collection.update_one(
+        collection.replace_one(
             {"Name": data["Name"]},  # Filter by Name
-            {"$set": data},  # Set the data
+            data,  # Replace with data
             upsert=True  # Insert the document if it doesn't exist
         )
         
-    print("data uploaded, Time : " + data_to_insert[0]['Timestamp'])
+    print("data uploaded, Timestamp : " + datetime.datetime.now().time().strftime('%H:%M:%S'))
         
     # Close the MongoDB connection
     client.close()
