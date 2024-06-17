@@ -35,6 +35,5 @@ def update_data():
 if __name__ == "__main__":
     while True:
         update_data()
-        time.sleep(10)
 
     # update_data()

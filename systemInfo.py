@@ -3,6 +3,7 @@ import platform
 import psutil
 import socket
 import cpuinfo
+import time
 
 def getname():
     return platform.node()
@@ -31,35 +32,60 @@ def get_system_info():
     # CPU information
     info['Physical cores'] = psutil.cpu_count(logical=False)
     info['Logical cores'] = psutil.cpu_count(logical=True)
-    info['Max Frequency'] = round(psutil.cpu_freq().max/1000 , 3)
-    info['Current Frequency'] = round(psutil.cpu_freq().current/1000 , 3)
-    info['CPU Usage'] = psutil.cpu_percent(interval=1)
+    info['Max Frequency'] = round(psutil.cpu_freq().max / 1000, 3)
+
+    # Measure CPU and memory usage over 10 seconds
+    cpu_usages = []
+    memory_usages = []
+    cpu_frequency = []
+
+    for _ in range(10):
+        cpu_usages.append(psutil.cpu_percent(interval=1))
+        svmem = psutil.virtual_memory()
+        memory_usages.append(svmem.percent)
+        cpu_frequency.append(psutil.cpu_freq().current / 1000)
+    
+    avg_cpu_usage = sum(cpu_usages) / len(cpu_usages)
+    avg_memory_usage = sum(memory_usages) / len(memory_usages)
+    avg_cpu_frequency = sum(cpu_frequency) / len(cpu_frequency)
+
+    info['Current Frequency'] = round(avg_cpu_frequency, 3)
+    info['CPU Usage'] = avg_cpu_usage
 
     # Memory information
     svmem = psutil.virtual_memory()
-    info['Total Memory'] = round(svmem.total/(1024*1024*1024),2)
-    info['Available Memory'] = round(svmem.available/(1024*1024*1024),2)
-    info['Used Memory'] = round(svmem.used/(1024*1024*1024),2)
-    info['Memory Usage'] = svmem.percent
+    info['Total Memory'] = round(svmem.total / (1024 * 1024 * 1024), 2)
+    info['Available Memory'] = round(svmem.available / (1024 * 1024 * 1024), 2)
+    info['Used Memory'] = round(svmem.used / (1024 * 1024 * 1024), 2)
+    info['Memory Usage'] = avg_memory_usage
 
     # Disk information
     partitions = psutil.disk_partitions()
     for partition in partitions:
         usage = psutil.disk_usage(partition.mountpoint)
-        if(usage.total/(1024*1024*1024)<1):
+        if usage.total / (1024 * 1024 * 1024) < 1:
             continue
-        info[f'Disk Total Space ({partition.device})'] = round(usage.total/(1024*1024*1024), 2)
-        info[f'Disk Used Space ({partition.device})'] = round(usage.used/(1024*1024*1024), 2)
-        info[f'Disk Free Space ({partition.device})'] = round(usage.free/(1024*1024*1024), 2) 
-        info[f'Disk Usage ({partition.device})'] = usage.percent
+        info['Disk Total Space'] = round(usage.total / (1024 * 1024 * 1024), 2)
+        info['Disk Used Space'] = round(usage.used / (1024 * 1024 * 1024), 2)
+        info['Disk Free Space'] = round(usage.free / (1024 * 1024 * 1024), 2)
+        info['Disk Usage'] = usage.percent
 
     # Network details
     net_io = psutil.net_io_counters()
     info['Total Bytes Sent'] = net_io.bytes_sent
     info['Total Bytes Received'] = net_io.bytes_recv
 
+    # System uptime
+    uptime_seconds = int(time.time() - psutil.boot_time())
+    uptime_hours = uptime_seconds // 3600
+    uptime_seconds %= 3600
+    uptime_minutes = uptime_seconds // 60
+    uptime_seconds %= 60
+    uptime_hms = f"{uptime_hours:02}:{uptime_minutes:02}:{uptime_seconds:02}"
+    info['Uptime'] = uptime_hms
+
     # Time
-    info['Time'] = datetime.datetime.now().time().strftime('%H:%M:%S')
+    info['Timestamp'] = datetime.datetime.now().time().strftime('%H:%M:%S')
 
     # Wrapping the info dictionary in a list
     return [info]
