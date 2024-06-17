@@ -21,13 +21,15 @@ def update_data():
     # Get system information
     data_to_insert = systemInfo.get_system_info()
 
-    # Clear the collection (optional, if you want to overwrite existing data)
-    collection.delete_many({"Name" : platform.node()})
+    # Update the data in the collection without deleting it
+    for data in data_to_insert:
+        collection.update_one(
+            {"Name": data["Name"]},  # Filter by Name
+            {"$set": data},  # Set the data
+            upsert=True  # Insert the document if it doesn't exist
+        )
         
-    # Insert the data into the collection
-    collection.insert_many(data_to_insert)
-        
-    print("Updated details successfully into MongoDB\n")
+    print("data uploaded, Time : " + data_to_insert[0]['Timestamp'])
         
     # Close the MongoDB connection
     client.close()
