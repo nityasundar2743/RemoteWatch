@@ -34,30 +34,11 @@ def get_system_info():
     info['Logical cores'] = psutil.cpu_count(logical=True)
     info['Max Frequency'] = round(psutil.cpu_freq().max / 1000, 3)
 
-    # Measure CPU and memory usage over 10 seconds
-    cpu_usages = []
-    memory_usages = []
-    cpu_frequency = []
-
-    for _ in range(10):
-        cpu_usages.append(psutil.cpu_percent(interval=1))
-        svmem = psutil.virtual_memory()
-        memory_usages.append(svmem.percent)
-        cpu_frequency.append(psutil.cpu_freq().current / 1000)
-    
-    avg_cpu_usage = sum(cpu_usages) / len(cpu_usages)
-    avg_memory_usage = sum(memory_usages) / len(memory_usages)
-    avg_cpu_frequency = sum(cpu_frequency) / len(cpu_frequency)
-
-    info['Current Frequency'] = round(avg_cpu_frequency, 3)
-    info['CPU Usage'] = round(avg_cpu_usage, 3)
-
     # Memory information
     svmem = psutil.virtual_memory()
     info['Total Memory'] = round(svmem.total / (1024 * 1024 * 1024), 2)
     info['Available Memory'] = round(svmem.available / (1024 * 1024 * 1024), 2)
     info['Used Memory'] = round(svmem.used / (1024 * 1024 * 1024), 2)
-    info['Memory Usage'] = round(avg_memory_usage, 3)
 
     # Disk information
     partitions = psutil.disk_partitions()
