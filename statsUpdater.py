@@ -22,6 +22,7 @@ def update_data():
     avgCPUUsage = cpuMonitor.get_avg_cpu_usage()
     memHistory = memMonitor.get_memory_usage_history()
     avgMemUsage = memMonitor.get_avg_memory_usage()
+    timeStamp = datetime.datetime.now().strftime('%H:%M:%S')
 
     name = platform.node()
     
@@ -32,7 +33,7 @@ def update_data():
         'cpuUsageHistory': cpuHistory,
         'avgMemUsage' : avgMemUsage,
         'memUsageHistory' : memHistory,
-        'timestamp': datetime.datetime.now().strftime('%H:%M:%S')
+        'timestamp': timeStamp
     }
     
     # Upsert the document in MongoDB
@@ -42,7 +43,7 @@ def update_data():
         upsert=True  # Insert document if it does not exist
     )
     
-    print("Data uploaded")
+    print("Data uploaded, timestamp - " + timeStamp)
         
     # Close the MongoDB connection
     client.close()
