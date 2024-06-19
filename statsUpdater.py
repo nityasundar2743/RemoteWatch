@@ -9,14 +9,21 @@ MONGO_URI = 'mongodb+srv://nitya:1234@remotewatch.e6zcabc.mongodb.net/?retryWrit
 DATABASE_NAME = 'RemoteWatch'
 COLLECTION_NAME = 'usageStatistics'
 
-def update_data():
+def connect_database():
     # Create a MongoDB client
     client = MongoClient(MONGO_URI)
         
     # Access the database and collection
     db = client[DATABASE_NAME]
     collection = db[COLLECTION_NAME]
-        
+    
+    return client, db, collection
+
+def close_database(client):
+    client.close()
+
+def update_data(collection):
+    
     # Get system information
     cpuHistory = cpuMonitor.get_cpu_usage_history()
     avgCPUUsage = cpuMonitor.get_avg_cpu_usage()
@@ -31,8 +38,8 @@ def update_data():
         'Name': name,
         'avgCPUUsage': avgCPUUsage,
         'cpuUsageHistory': cpuHistory,
-        'avgMemUsage' : avgMemUsage,
-        'memUsageHistory' : memHistory,
+        'avgMemUsage': avgMemUsage,
+        'memUsageHistory': memHistory,
         'timestamp': timeStamp
     }
     
@@ -44,18 +51,19 @@ def update_data():
     )
     
     print("Data uploaded, timestamp - " + timeStamp)
-        
-    # Close the MongoDB connection
-    client.close()
 
 if __name__ == "__main__":
     cpuMonitor = CPUUsageMonitor(max_samples=60, sample_interval=1)
     memMonitor = MemoryUsageMonitor(max_samples=60, sample_interval=1)
+    client, db, collection = connect_database()
     try:
         while True:
-            update_data()
+            update_data(collection)
             time.sleep(30)  # Sleep for 30 seconds before updating again
     except KeyboardInterrupt:
         memMonitor.stop()
         cpuMonitor.stop()
         print("Monitoring stopped due to keyboard interrupt.")
+    finally:
+        close_database(client)
+        print("Database connection closed.")
